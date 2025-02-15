@@ -6,8 +6,8 @@ source .env
 # Lấy phần trăm dung lượng của ổ đĩa gốc (/) 
 DISK_USAGE=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
 
-# Ngưỡng dung lượng trống tối thiểu (25%)
-THRESHOLD=60
+# Ngưỡng dung lượng tối thiểu (85%)
+THRESHOLD=85
 
 # Hàm gửi thông báo đến Telegram
 send_telegram_message() {
@@ -23,7 +23,8 @@ if [ "$DISK_USAGE" -gt "$THRESHOLD" ]; then
     echo "Dung lượng ổ đĩa đã vượt quá $THRESHOLD% ($DISK_USAGE%), tiến hành dọn dẹp Docker..."
     sudo docker system prune -af
     echo "Dọn dẹp Docker hoàn tất."
-    send_telegram_message "✅ Dọn dẹp Docker hoàn tất. Dung lượng hiện tại là $DISK_USAGE%."
+    AFTER_CLEAN_DISK_USAGE=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
+    send_telegram_message "✅ Dọn dẹp Docker hoàn tất. Dung lượng hiện tại là $AFTER_CLEAN_DISK_USAGE%."
 
 else
     echo "Dung lượng ổ đĩa vẫn trong mức an toàn ($DISK_USAGE%) (THRESHOLD: $THRESHOLD%), không cần dọn dẹp."
